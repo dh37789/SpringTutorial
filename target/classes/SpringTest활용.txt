@@ -1,0 +1,159 @@
+1. 스프링 API
+   	http://docs.spring.io/spring-framework/docs/3.2.0.RC1/api/index.html
+
+2. JUnit, 스프링 테스트 메뉴얼
+	http://blog.naver.com/PostView.nhn?blogId=kjs077&logNo=10137344512
+	https://code.google.com/archive/p/mockito/wikis/MockitoFeaturesInKorean.wiki
+	http://www.w3ii.com/ko/mockito/mockito_varying_calls.html
+
+3. unitils-core 라이브러리
+    객체의 속성값 비교를 위한 assertEquals()를 활용한 반복 코드를 unitils-core 라이브러리를 활용하여 객체 간 속성 비교.
+    컬렉션 간 객체의 속성값 비교
+    unitils-core 라이브러리는 ognl, commons-collection, commons-lang, commons-logging 라이브러리 의존.
+    http://www.unitils.org/tutorial-core.html
+
+4. json-path 라이브러리 
+    json 응답 결과 검증을위해 활용되는 MockMvcResultMatchers.jsonPath가 활용
+    http://goessner.net/articles/JsonPath/
+
+5. 요구 사항 : 1) spring version 3.2.9 이상 버젼에서 실행.(JUnit과 Spring 버젼 맵핑.)
+              2) 테스트 시 tiles 설정
+                 class="org.springframework.web.servlet.view.tiles2.TilesConfigurer" 등록시 lazy-init="true" 설정
+                 * 실 서비스 시 lazy-init="true" 삭제
+              3) @TestExecutionListeners 선언시 의존성 주입(@Autowired, @Resource 등)을위해 명시적
+                 DependencyInjectionTestExecutionListener 선언이 요구됨.
+
+* 코드 리딩 순서
+1. MainController, MainControllerTest
+   	- Spring Test 설정
+   	- MockMvc를 활용한 요청과 응답코드 검증, ViewResolver 처리 검증
+   
+2. JoinController, JoinControllerUnitTest
+	- 컨트롤러 Mock up
+	- DefaultViewResolver 설정
+	- InternalResourceViewResolver 설정
+	- 요청 로그와 응답 로그 출력
+	- MockHttpSession 활용
+	- MockMvc를 활용한 요청시 파라메터 구성
+	- RedirectAttributes 활용
+	- @ResponseBody 처리
+	- 요청 컨텐츠 타입 설정 및 응답 컨텐츠 타입 검증
+	- json 응답 데이타 접근 및 검증
+	- ModelAndView 처리
+	
+3. JoinController, JoinControllerNServiceLayerTest
+   	- 컨트롤러, 서비스 외 자원 Mock up과 DI 처리
+   	- MappingJackson2JsonView 설정
+   	- Jaxb2MarshallingView 설정
+   	- 서비스와 자원의 Mock 메서드의 Stubbing.
+   	- 요청의 구성과 응답의 검증
+   	- 응답 결과 취득(andReturn()을 통해 MvcResult 취득)
+   	- 테스트 세션 생성 및 세션 값 검증
+   
+4. IMemberServiceImpl, IMemberServiceImplTest
+    - 서비스, Dao(Mock up DI 처리) 
+    - @TestExecutionListeners 활용
+    - @Captor 활용
+   
+5. IMemberServiceImpl, IMemberServiceImplTransactionTest
+    - DBMS 실행 후 테스트 수행
+    - 시스템 프로파일을 기초로 @IfProfileValue를 활용한 테스트 전제 조건 설정
+    - 테스트 메서드 단위(@Before, 테스트 메서드, @After 포함) 수행 시간을 @Timed로 설정
+    - 테스트 메서드 단위(@Before, 테스트 메서드, @After 포함) 반복 테스트 횟수를 @Repeat로 설정
+    - @Timed 활용
+    - @Repeat 활용
+    - @TransactionConfigurationg 활용
+    - @Transactional 활용
+    - @Rollback 활용
+    
+6. FreeboardController, FreeboardControllerTest
+    - fileupload 테스트 수행
+   
+
+
+********* 코드 템플릿 설정 *********
+Window -> Preferences -> java -> Java -> Editor -> Templates	
+[New] 
+  Name : mockitoCore
+  Description : 입력
+  Pattern :     
+${is1:importStatic('org.hamcrest.CoreMatchers.is')}
+${is2:importStatic('org.hamcrest.CoreMatchers.isA')}
+${is3:importStatic('org.hamcrest.CoreMatchers.notNullValue')}
+${is4:importStatic('org.hamcrest.CoreMatchers.nullValue')}
+${is5:importStatic('org.hamcrest.CoreMatchers.equalTo')}
+${is6:importStatic('org.hamcrest.CoreMatchers.hasItem')}
+${is7:importStatic('org.hamcrest.CoreMatchers.containsString')}
+${is8:importStatic('org.hamcrest.CoreMatchers.startsWith')}
+${is9:importStatic('org.hamcrest.CoreMatchers.endsWith')}
+${is10:importStatic('org.hamcrest.CoreMatchers.instanceOf')}
+${is11:importStatic('org.hamcrest.CoreMatchers.not')}
+${is12:importStatic('org.hamcrest.Matchers.hasProperty')}
+${is13:import('org.junit.BeforeClass')}
+${is14:import('org.junit.AfterClass')}
+${is15:import('org.junit.Before')}
+${is16:import('org.junit.After')}
+${is17:import('org.junit.Test')}
+${is18:import('org.junit.Ignore')}
+${is19:import('org.junit.runner.RunWith')}
+${is20:importStatic('org.junit.Assert.assertThat')}
+${is21:importStatic('org.junit.Assert.assertTrue')}
+${is22:importStatic('org.junit.Assert.assertEquals')}
+${is23:importStatic('org.junit.Assert.fail')}
+${is24:import('org.mockito.runners.MockitoJUnitRunner')}
+${is25:import('org.mockito.InjectMocks')}
+${is26:import('org.mockito.Mock')}
+${is27:import('org.mockito.Spy')}
+${is28:import('org.mockito.Captor')}
+${is29:import('org.mockito.stubbing.Answer')}
+${is30:import('org.mockito.invocation.InvocationOnMock')}
+${is31:import('org.mockito.ArgumentCaptor')}
+${is32:import('org.mockito.InOrder')}
+${is33:importStatic('org.mockito.Mockito.mock')}
+${is34:importStatic('org.mockito.Mockito.when')}
+${is35:importStatic('org.mockito.Mockito.verify')}
+${is36:importStatic('org.mockito.Mockito.doAnswer')}
+${is37:importStatic('org.mockito.Mockito.doCallRealMethod')}
+${is38:importStatic('org.mockito.Mockito.doNothing')}
+${is39:importStatic('org.mockito.Mockito.doThrow')}
+${is40:importStatic('org.mockito.Mockito.doReturn')}
+${is41:importStatic('org.mockito.Mockito.inOrder')}
+${is42:importStatic('org.mockito.Matchers.anyInt')}
+${is43:importStatic('org.mockito.Matchers.anyString')}
+${is44:importStatic('org.mockito.Matchers.anyMap')}
+${is45:importStatic('org.mockito.Matchers.anyObject')}
+${is46:importStatic('org.mockito.Matchers.eq')}
+${is47:importStatic('org.mockito.MockitoAnnotations.initMocks')}
+${is48:importStatic('org.mockito.Mockito.timeout')}
+${is49:importStatic('org.mockito.Mockito.times')}
+${is50:importStatic('org.mockito.Mockito.atLeastOnce')}    
+${is51:importStatic('org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals')}
+${is52:importStatic('org.unitils.reflectionassert.ReflectionComparatorMode.IGNORE_DEFAULTS')}
+   
+  Name : springMockitoCore
+  Description : 입력
+  Pattern : 
+${is1:import('org.springframework.test.context.ContextConfiguration')}
+${is2:import('org.springframework.test.context.junit4.SpringJUnit4ClassRunner')}
+${is3:import('org.springframework.test.context.web.WebAppConfiguration')}
+${is4:import('org.springframework.test.web.servlet.MockMvc')}
+${is5:import('org.springframework.test.web.servlet.setup.MockMvcBuilders')}
+${is6:import('org.springframework.mock.web.MockHttpServletRequest')}
+${is7:import('org.springframework.mock.web.MockHttpServletResponse')}
+${is8:import('org.springframework.mock.web.MockHttpSession')}
+${is9:importStatic('org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get')}
+${is10:importStatic('org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post')}
+${is11:importStatic('org.springframework.test.web.servlet.request.MockMvcRequestBuilders.fileUpload')}
+${is12:importStatic('org.springframework.test.web.servlet.result.MockMvcResultHandlers.print')}
+${is13:importStatic('org.springframework.test.web.servlet.result.MockMvcResultMatchers.status')}
+${is14:importStatic('org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl')}
+${is15:importStatic('org.springframework.test.web.servlet.result.MockMvcResultMatchers.forwardedUrl')}
+${is16:importStatic('org.springframework.test.web.servlet.result.MockMvcResultMatchers.model')}
+${is17:importStatic('org.springframework.test.web.servlet.result.MockMvcResultMatchers.view')}
+${is18:importStatic('org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash')}
+${is19:importStatic('org.springframework.test.web.servlet.result.MockMvcResultMatchers.request')}   
+${is20:importStatic('org.springframework.test.web.servlet.result.MockMvcResultMatchers.content')}
+${is21:importStatic('org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath')}
+${is22:importStatic('org.springframework.test.web.servlet.result.MockMvcResultMatchers.xpath')}
+   
+   

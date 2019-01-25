@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+	<!-- 
+		properties 파일 활용
+		context:property-placeholder : 프로퍼티스 파일의 내용 활용 범위
+									   property-placeholder가  선언된 설정
+									     파일 내로 제한
+									    활용시 표기법 : ${프로포티스 파일 내 키값}
+		util:properties : 프로퍼티스 파일의 내용이 해당 어플리케이션내에 모든
+						   전체 설정파일에서 활용.
+						  활용 표기법 : #{util를 통해 프로퍼티스 파일 접근시 ID or Name['키값']}
+	 -->
+	<context:property-placeholder location="classpath:kr/or/ddit/ibatis/config/SqlMapConfig.properties"
+		file-encoding="UTF-8"/>
+
+	<!-- 
+		스프링 프레임웍 커넥션 정보 : DriverManagerDataSource : SIMPLE DataSource활용(DBCP, JNDI 활용)
+							 SimpleDriverDataSource : 테스트용
+							 BasicDataSource : DBCP, JNDI 활용
+	 -->
+	<!-- 
+		public class DrivermangerDataSource{
+			private String driverClassName;
+			private String url;
+
+			public void setDriverClassName(String driverClassName){
+				this.driverClassName = driverClassName;
+			}
+			public void setUrl(String url){
+				this.url = url;
+			}
+		}
+	 -->
+<!-- 	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"> -->
+	<!-- property는 setter을 의미한다 -->
+<!-- 		<property name="driverClassName" value="${driver}"></property> -->
+<!-- 		<property name="url" value="${url}"></property> -->
+<!-- 		<property name="username" value="${username}"></property> -->
+<!-- 		<property name="password" value="${password}"></property> -->
+<!-- 	</bean> -->
+<!-- 
+		public class DrivermangerDataSource{
+			private String driverClassName;
+			private String url;
+			private String username;
+			private String password;
+			선언된 전역변수별 setter가 작성
+		}
+	 -->
+<!-- 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" -->
+<!-- 		p:driverClassName="#{connectionInfo['driver']}" -->
+<!-- 		p:url="#{connectionInfo['url']}" -->
+<!-- 		p:username="#{connectionInfo['username']}" -->
+<!-- 		p:password="#{connectionInfo['password']}" -->
+<!-- 		p:maxActive="10" -->
+<!-- 		p:maxWait="-1" -->
+<!-- 		p:removeAbandoned="true" -->
+<!-- 		p:removeAbandonedTimeout="5000"> -->
+<!-- 	</bean> -->
+	<!-- ref : dataSource의 설정값을 참조 -->
+	<!-- 
+		public class DrivermangerDataSource{
+			private DataSource dataSource;
+			public void setDataSource(DataSource dataSource){
+				this.dataSource = dataSource;
+			}
+		}
+	 -->
+	 <jee:jndi-lookup id="dataSource" jndi-name="jndi/ddit"></jee:jndi-lookup>
+	<bean id="sqlMapClient" class="org.springframework.orm.ibatis.SqlMapClientFactoryBean"
+		p:dataSource-ref="dataSource"
+		p:configLocation="classpath:kr/or/ddit/ibatis/config/SqlMapConfig.xml"
+		p:useTransactionAwareDataSource="true"
+		p:transactionConfigClass="com.ibatis.sqlmap.engine.transaction.external.ExternalTransactionConfig">
+		<property name="transactionConfigProperties">
+			<props>
+				<prop key="DefaultAutoCommit">false</prop>
+				<prop key="SetAutoCommitAllowed">true</prop>
+			</props>
+		</property>
+	</bean>
+	<bean id="transactionMgr" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"
+		p:dataSource-ref="dataSource">
+	</bean>
+</beans>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd">
+
+	<!-- 
+		AOP 설정
+	 -->
+	 <aop:config>
+	 	<aop:pointcut id="theWholePointCut" expression="execution(* kr.or.ddit..*.*(..))"/>
+	 	<aop:aspect ref="logPrintAspect">
+	 		<aop:before method="theWholeJoinpointCallBefore" pointcut-ref="theWholePointCut"/>
+	 		<aop:after method="theWholeJoinpointCallAfter" pointcut-ref="theWholePointCut"/>
+	 		<aop:after-throwing method="theWholeJoinpointCallAfterThrowing" pointcut-ref="theWholePointCut" throwing="ex"/>
+	 		<aop:around method="theWholeJoinpointCallAround" pointcut-ref="theWholePointCut"/>
+	 	</aop:aspect>
+	 </aop:config>
+</beans>

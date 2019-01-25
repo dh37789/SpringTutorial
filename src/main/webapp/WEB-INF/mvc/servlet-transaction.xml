@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd">
+	<!-- 
+		어노테이션 베이스 트랜잭션 처리
+		commit : DispatcherServlet <===> public 반환값 컨트롤러 메서드 <===> 서비스 메서드 <===> 다오 메서드 <===> DB
+				      트랜잭션 매니저				@Transactional		   @Transactional
+				  @Transactional 
+		rollback : DispatcherServlet <===> public 반환값 컨트롤러 메서드 <===> 서비스 메서드 <===> 다오 메서드 <===> DB
+				        트랜잭션 매니저					@Transactional		@Transactional              에러
+				    @Transactional  			 throws 익셉션 		  throws 익셉션 		 	throws 익셉션
+				        익셉션 
+				        
+		proxy-target-class  @Transactional : 서비스 레이어의 서비스 메서드 상단 선언 
+							true : 인터페이스를 구현한 클래스내에 오버라이딩 되지않 은 서비스 메서드 상단에 @Transactional 선언 활용
+							false : 인터페이스를 구현한 메서드가 오버라이딩 된 메서드 상단에 @Transactional 선언 활용
+	 -->
+	
+	<tx:annotation-driven transaction-manager="transactionManager" proxy-target-class="false"/>
+
+</beans>

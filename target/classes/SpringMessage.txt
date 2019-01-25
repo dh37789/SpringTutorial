@@ -1,0 +1,28 @@
+Spring 다국어 Message 처리
+1. 기 선언된 코드와 메세지를 활용하여 다국어 언어팩을 구성하고 활용함.
+   1.1 출력될 이미지의 alt 속성을 다국어 메세지로 처리
+   1.2 출력될 레이블 텍스트를 다국어 메세지로 처리
+   1.3 유저의 화면 구성 컴포넌트 조작시의 시스템 메세지를 다국어로 처리
+
+2. 다국어 언어팩 구성
+   * message.properties는 설정되지않은 국가를 대상으로한 언어팩
+   kr/or/ddit/msg/config/message.properties
+   kr/or/ddit/msg/config/message_kr.properties
+   kr/or/ddit/msg/config/message_en.properties
+   
+3. 스프링 설정 파일 
+   * 클라이언트의 http 프로토콜  요청시 header, cookie, session 값을 통해 서비스 언어팩을 판단 활용	
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver">
+	    <property name="defaultLocale" value="kr"></property>
+	</bean>
+		
+	<bean id="messageSourceAccessor" class="org.springframework.context.support.ResourceBundleMessageSource"
+		p:basename="claspath:kr/or/ddit/msg/config/message"
+		p:defaultEncoding="UTF-8"/>
+		
+4. jsp에서의 활용
+   <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
+   <spring:message code="properties 파일에서 활용될 코드 키" />
+   
+* message properties 파일에 코드가 없을때 화면(화이트 뷰)이 출력 되지 않음.

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+	<!-- 
+		스프링 프레임웍 파일 업로드 설정
+		multipartResolver무조건 id값은 multipartResolver을 써야한다.
+		CommonsMultipartResolver : fileWrapper 같은 존재
+	 -->
+	 <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver"
+	 	p:maxUploadSize="-1"
+	 	p:defaultEncoding="UTF-8">
+	 </bean>
+</beans>

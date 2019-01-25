@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+	<context:component-scan base-package="kr.or.ddit">
+	<!-- stereotype는 @를 말한다. 자동으로 bean 등록이 된다. -->
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+	</context:component-scan>
+<!-- 	 <bean name="클래스명 joinController" -->
+<!-- 		class="kr.or.ddit.join.controller.JoinController"/> 가 자동으로 추가된다. -->
+
+<!-- 	<bean id="join" class="kr.or.ddit.join.controller.JoinController"></bean> -->
+<!-- 	<bean id="member" class="kr.or.ddit.member.controller.MemberController"></bean> -->
+
+	<!-- 별명 두개 -->
+<!-- 	<bean id="memberService" name="service1 service2" -->
+<!-- 		class="kr.or.ddit.member.service.IMemberServiceImpl"></bean> -->
+<!-- 	<bean name="memberDao" -->
+<!-- 		class="kr.or.ddit.member.dao.IMemberDaoImpl"></bean> -->
+</beans>

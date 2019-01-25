@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap      
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<!-- 자유게시판 첨부파일 SQL문                                                -->
+<!-- << 개정이력(Modification Information) >>            -->
+<!--  수정일              수정자        수정내용              -->
+<!--  ===========  =======  =====================     -->
+<!--  2019.01.15.  오명학        최초작성                 -->
+<!-- Copyright (c) 2019 by DDIT  All right reserved      -->    
+<sqlMap namespace="fileitem">
+	<typeAlias alias="freeItemVO" type="kr.or.ddit.vo.FreeItemVO" />
+	<typeAlias alias="fileVO" type="kr.or.ddit.vo.FileItemVO" />
+	
+	<statement id="fileItemList" resultClass="freeItemVO">
+		SELECT *
+		  FROM FREEITEM
+		 WHERE FREEITEM_BO_NO = #bo_no#
+	</statement>
+	
+	<insert id="insertFileItem" parameterClass="fileVO">
+		<selectKey keyProperty="fileitem_seq">
+			SELECT FREEITEM_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO FREEITEM
+		(FREEITEM_SEQ, FREEITEM_BO_NO, FREEITEM_NAME, FREEITEM_SAVE_NAME, FREEITEM_CONTENT_TYPE, FREEITEM_SIZE)
+		VALUES (#fileitem_seq#, #fileitem_bo_no#, #fileitem_name#, #fileitem_save_name#, #fileitem_content_type#, #fileitem_size#)
+	</insert>	
+	
+	
+	<select id="fileItemInfo" parameterClass="map" resultClass="freeItemVO">
+		SELECT *
+		  FROM FREEITEM 
+		 WHERE FREEITEM_SEQ = #freeitem_seq#
+	</select>
+</sqlMap>

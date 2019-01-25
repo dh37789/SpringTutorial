@@ -1,0 +1,54 @@
+* Spring WebMVC와 연동을위해 활용되며,  커맨드 객체 및 컨트롤러의 데이터에 접근이 가능함.
+    * spring-webmvc-3.2.3.RELEASE.jar 파일 내  META-INF/spring-form.tld 파일이 존재함.
+    * Spring form tag대상 jstl의 funciton 태그 적용 불가 
+      
+    2.1 태그 선언
+          <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+          
+    2.2  sample
+          kr.or.ddit.member.controller.SpringFormController
+          /WEB-INF/view/formTag/memberForm_formTag.jsp
+          /WEB-INF/view/formTag/memberView_formTag.jsp
+          /WEB-INF/view/formTag/memberView_customizing.jsp
+    
+    2.3 tag reference
+        * path 속성은 form의 submit시 key로 값을 서버로 전송됨.
+        <form:form> : commandName - 컨트롤러 메서드에서 request.setAttribute(key, value),
+	                                Model, ModelMap, ModelAndView에 저장된 객체의 key값.
+	                  modelAttribute - 컨트롤러 메서드에서 정의한 @ModelAttribute("key값") or
+	                                   @ModelAttribute 객체명의 자체.
+	                  cssClass    - html form 태그의 class 속성 대체.
+	                  cssStyle   - html style속성 대체
+	                  * commandName과 modelAttribute동일. 
+	    <form:hidden> : input type="hidden" 대체.
+	                    path - form의 commandName속성에 선언된 값(VO객체)에서 취득될 속성값.
+	                           submit시
+	                           <input type="hidden" name="path속성값" value="VO객체의 path 속성값"
+	    <form:input> : input type="text" 대체.
+	                   path - form의 commandName속성에 선언된 값(VO객체)에서 취득될 속성값.
+	                          submit시
+	                          <input type="text" name="path속성값" value="VO객체의 path 속성값"
+	    <form:password> : input type="password" 대체.
+	                   path - form의 commandName속성에 선언된 값(VO객체)에서 취득될 속성값.
+	                   showPassword - default false로 값 출력 안됨.
+	                                  true           값 출력시 히든값으로 출력.
+	    <form:select> : <select> 대체
+	                    path - 커맨드 객체로부터의 취득 값
+	                    multiple - default true 멀티 옵션라인(리스트 박스) 출력
+	                               false        싱글 옵션라인 출력
+	          <form:options> : 다수의 <option> 대체                           
+	                           items - 커맨드 객체로부터의 취득값
+	                                   EL 표기 ${키.Map 또는 배열명}
+	                           * select의 path의 값과 items를통해 작성되는 option의 value 값을
+	                                      비교하여 selected 처리됨.
+	                           * option selected 처리 javascript or jquery 처리 가능
+	    <form:checkboxes> : input type="checkbox" 대체
+	                        path - 커맨드 객체내 값
+	                        items - 배열.
+	                        * items속성값을통해 작성되는 checkbox의 value값을 path 속성의값과 일치하는
+	                                  값 체크.      
+	    <form:rediobuttons> : input type="redio" 대체
+	                        path - 커맨드 객체내 값
+	                        items - 배열.
+	                        * items속성값을통해 작성되는 radiobutton의 value값을 path 속성의값과 일치하는
+	                                  값 체크.   

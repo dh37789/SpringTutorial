@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<version>1</version>
+	<pluginVersion><![CDATA[3.6.3.201411271034-RELEASE]]></pluginVersion>
+	<configSuffixes>
+		<configSuffix><![CDATA[xml]]></configSuffix>
+	</configSuffixes>
+	<enableImports><![CDATA[true]]></enableImports>
+	<configs>
+		<config>src/main/webapp/WEB-INF/firstDispatcher-servlet.xml</config>
+		<config>src/main/resources/kr/or/ddit/spring/config/application-viewresolver.xml</config>
+		<config>src/main/webapp/WEB-INF/secondDispatcher-servlet.xml</config>
+		<config>src/main/webapp/WEB-INF/mvc/servlet-config.xml</config>
+		<config>src/main/resources/kr/or/ddit/spring/config/application-ibatis.xml</config>
+		<config>src/main/resources/kr/or/ddit/spring/config/application-properties.xml</config>
+		<config>src/main/resources/kr/or/ddit/spring/config/application-config.xml</config>
+		<config>src/main/webapp/WEB-INF/mvc/servlet-messageconverter.xml</config>
+		<config>src/main/resources/kr/or/ddit/spring/config/application-view.xml</config>
+		<config>src/main/webapp/WEB-INF/mvc/servlet-tiles.xml</config>
+		<config>src/main/resources/kr/or/ddit/spring/config/application-files.xml</config>
+		<config>src/main/resources/kr/or/ddit/spring/config/application-i18n.xml</config>
+		<config>src/main/resources/kr/or/ddit/spring/config/application-quartz.xml</config>
+		<config>src/main/webapp/WEB-INF/mvc/servlet-aop.xml</config>
+		<config>src/main/webapp/WEB-INF/mvc/servlet-transaction.xml</config>
+	</configs>
+	<autoconfigs>
+	</autoconfigs>
+	<configSets>
+	</configSets>
+</beansProjectDescription>

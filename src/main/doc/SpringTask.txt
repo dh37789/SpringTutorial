@@ -1,0 +1,28 @@
+Spring Task 스케줄러
+1. Task : 스레드 풀을 활용한 비동기식 스케줄러
+   
+2. spring-context-support 라이브러리에 존재.
+ 
+3. TaskExecutor : 빈에서의 스레드 풀을 기반으로한 비동기식 스케줄러 구현
+   2.1 종류 :  - SimpleAsyncTaskExecutor
+                 스레드를 재사용하지 않으며, 항상 새로운 스레드를통해 실행됨. 
+                 동시접속 제한을 지원.
+               - SyncTaskExecutor
+                 호출을 비동기적으로 실행하는 대신 각 호출 정보가 호출 스레드에 추가됨.
+                 간단한 테스트 케이스와 같은 싱글 스레드에서 주로 사용.
+               - ConcurrentTaskExecutor
+                 java.util.concurrent.Executor의 래퍼. 
+                 Executor 설정 파라미터를 노출. 
+                 ThreadPoolTaskExecutor의 안정성 문제로 ConcurrentTaskExecutor 대체 사용.
+               - SimpleThreadPoolTaskExecutor
+                 Quartz SimpleThreadPool의 하위클래스로 스프링의 생명주기 콜백 취득.
+                 Quartz와 Quartz가 아닌 컴포넌트 간에 공유해야 하는 스레드 풀이 있는 경우 사용.
+               - ThreadPoolTaskExecutor
+                 일반적으로 사용됨. 
+                 ScheduledThreadPoolExecutor 등의 기능 요구시 ConcurrentTaskExecutor를 대체 사용을 권장.
+               - TimerTaskExecutor
+                 SyncTaskExecutor 비교하여 동일한 스레드에서 동기적으로 실행되어도 기타 스레드로부터 호출됨.
+               - WorkManagerTaskExecutor
+                 스프링 컨텍스트에서 CommonJ WorkManager 참조를 구성하는 핵심 클래스. 
+                 SimpleThreadPoolTaskExecutor와 유사.
+   

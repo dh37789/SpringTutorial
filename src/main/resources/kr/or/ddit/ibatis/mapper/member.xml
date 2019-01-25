@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="member">
+	<typeAlias alias="memberVO" type="kr.or.ddit.vo.MemberVO"/>
+	<sql id="selectMember">
+	SELECT * FROM MEMBER
+	</sql>
+	
+	<select id="getMember" parameterClass="Map" resultClass="memberVO">
+		<include refid="selectMember"/>
+		WHERE MEM_ID = #mem_id#
+		<dynamic>
+		<isNotEmpty property="mem_pass">
+		AND   MEM_PASS = #mem_pass#
+		</isNotEmpty>
+		</dynamic>
+	</select>
+	
+	<insert id="insertMember" parameterClass="memberVO">
+		INSERT 
+		INTO MEMBER(MEM_ID, MEM_PASS, MEM_NAME, 
+					MEM_REGNO1, MEM_REGNO2, MEM_BIR,
+					MEM_HOMETEL, MEM_COMTEL, MEM_HP,
+					MEM_JOB, MEM_LIKE, MEM_MAIL,
+					MEM_ADD1, MEM_ADD2, MEM_ZIP)
+			 VALUES(#mem_id#, #mem_pass#, #mem_name#, 
+					#mem_regno1#, #mem_regno2#, #mem_bir#,
+					#mem_hometel#, #mem_comtel#, #mem_hp#,
+					#mem_job#, #mem_like#, #mem_mail#,
+					#mem_add1#, #mem_add2#, #mem_zip#)
+	</insert>
+	<select id="idCheck" parameterClass="String" resultClass="int">
+		SELECT count(*) FROM MEMBER WHERE MEM_ID = #mem_id#
+	</select>
+	
+	<select id="memberList" resultClass="memberVO" parameterClass="map">
+	SELECT * FROM MEMBER WHERE MEM_DELETE = 'y'
+<!-- 		SELECT B.* -->
+<!-- 		FROM (SELECT ROWNUM rnum, A.* -->
+<!-- 		FROM(<include refid="selectMember"/> -->
+<!-- 		WHERE MEM_DELETE = 'y' -->
+<!-- 		<dynamic prepend="AND"> -->
+<!-- 			<isNotEmpty property="search_keyword" open="(" close=")"> -->
+<!-- 				<isEqual property="search_keycode" compareValue="ALL"> -->
+<!-- 					MEM_ID LIKE '%'||#search_keyword#||'%' -->
+<!-- 				 OR	MEM_NAME LIKE '%'||#search_keyword#||'%' -->
+<!-- 				</isEqual> -->
+<!-- 				<isEqual property="search_keycode" compareValue="ID"> -->
+<!-- 					MEM_ID LIKE '%'||#search_keyword#||'%' -->
+<!-- 				</isEqual> -->
+<!-- 				<isEqual property="search_keycode" compareValue="NAME"> -->
+<!-- 				 	MEM_NAME LIKE '%'||#search_keyword#||'%' -->
+<!-- 				</isEqual> -->
+<!-- 			</isNotEmpty> -->
+<!-- 		</dynamic> -->
+<!-- 		ORDER BY MEM_ID DESC) A) B -->
+<!-- 		<![CDATA[ -->
+<!-- 		WHERE B.RNUM <= #startCount# -->
+<!-- 		  AND B.RNUM >= #endCount# -->
+<!-- 		]]> -->
+<!-- 		ORDER BY B.RNUM DESC -->
+	</select>
+	
+	<update id="updateMember" parameterClass="memberVO">
+		UPDATE MEMBER
+		   SET MEM_PASS = #mem_pass#
+		   	  ,MEM_HP = #mem_hp#
+		   	  ,MEM_MAIL = #mem_mail#
+		   	  ,MEM_HOMETEL = #mem_hometel#
+		   	  ,MEM_ZIP = #mem_zip#
+		   	  ,MEM_ADD1 = #mem_add1#
+		   	  ,MEM_ADD2 = #mem_add2#
+		   	  ,MEM_JOB = #mem_job#
+		   	  ,MEM_LIKE = #mem_like#
+		 WHERE MEM_ID = #mem_id#
+	</update>
+	<update id="deleteMember" parameterClass="String">
+		UPDATE MEMBER
+		   SET MEM_DELETE = 'n'
+		 WHERE MEM_ID = #mem_id#
+	</update>
+	
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(MEM_ID) 
+		FROM MEMBER
+		WHERE MEM_DELETE = 'y'
+	</select>
+</sqlMap>

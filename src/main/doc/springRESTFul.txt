@@ -1,0 +1,122 @@
+Spring RESTFul
+
+1. REST 개념
+   REST(REpresentational Status Transfer) Ful : URI를 통한 '표현적인 상태 전송 방식'으로
+                                             HTTP 프로토콜을 정확히 의도에 맞도록 디자인
+					                         환경을 제공.
+       * 표현적인 : 동일한 자원을 다양한 형태로 표현하여 제공하는것.					                         
+       *  HTTP/1.0, 1.1 스펙 작성 참여와 아파치 HTTP 서버 프로젝트의 공동설립자인
+          Roy Thomas Fielding의 캘리포니아 대학의 박사 학위 논문을 통해 소개된 Http와 
+          REST 개념을 이용한 대규모 웹 서비스 방식.
+
+   1.1 구성 요소
+	   1.1.1 Resource 접근       
+	         REST는 ROA를 지향하는 웹 서비스 디자인 표준이며, 서버의 모든 리소스는 URI를통해 
+	         다양한 형태로 표현이 가능해야 함.
+	         URI를 통해 직접 해당 리소스에 접근되어야하며, HyperLink를 통한 리소스 접근을 불허함.
+	         ROA(Resource Oriented Architecture) : 웹 서버의 모든 리소스를 클라이언트로부터의
+	                                              URI(Uniform Resource Identifier)로 표현하여
+	                                              구조적이고, 유기적으로 연결하며, Stateless를
+	                                              기반으로하는 클라이언트와 웹 서버의 관계에서
+	                                              규정된 전송방식과 요청 헤더 Accept를 통해 리소스의
+	                                              Content-Type을 활용하여 리소스에 접근.
+
+       1.1.2 Method 전송방식을 통한 리소스 접근 의도와 행위 표현
+             (URI 구성시 확장자를 선언하지 않으며, URI에 get|set|insert|delete|select|update 
+             등의 불필요한 표현을 선언하지 않음.)
+	         1) Http의 메서드 전송방식의 확장
+	             Http 메서드 전송방식        CRUD OP.          정의
+	                   POST                  Create          신규 생성
+	                   GET                   Read            조회
+	                   PUT                   Update          전체 수정(collection 대상)
+			           Patch                 Update          일부 수정(document 대상)	
+	                   Delete                Delete          삭제
+	
+	             ex) http://localhost/members        전체 회원 정보 취득  GET           collection(리소스의 집합)
+	                 http://localhost/members/member 특정 회원 정보 취득  GET           document(특정 리소스)
+	                 http://localhost/members        특정 회원 정보 생성  POST          document(특정 리소스)
+	                 http://localhost/members/member 특정 회원 정보 수정  PUT or PATCH  document(특정 리소스)
+	                 http://localhost/members/member 특정 회원 정보 삭제  DELETE        document(특정 리소스)
+
+	   1.1.3 Representation
+	         서버에 존재하는 다양한 리소스의 접근을위해 요청 헤더의 Accept에 접근 리소스의 Content-Type과
+	         URI를 활용하며, 관련 리소스의 체이닝을위해 0~1 범위의 q를 활용.
+	         특정 자원에 직접 접근할 수 있는 URI가 구성되어야하며, 파라메터를 선언하지 않음.
+	
+		       ex) header
+		           GET /members/member HTTP/1.1
+		           Host: localhost
+		           Accept: text/csv,text/html;q=0.5,application/xml;q=0.6,text/plain;q=0.9,application/pdf,*/*;q=0.3
+		                  우선순위
+		                  1. text/csv
+		                  2. application/pdf
+		                  3. text/plain;q=0.9
+		                  4. application/xml;q=0.6
+		                  5. text/html;q=0.5
+		                  6. */*;q=0.3
+
+	   1.1.4 Stateless
+	         웹 서버는 클라이언트의 상태를 저장 관리하지 않으며, 쿠키 또는 세션 공유를통한 리소스 접근 권한을 
+	         제어하지 않음. 
+       
+ 2. Spring RESTFul
+    2.1 JSR-311 스펙 미지원 : 일반적으로 Jersey, Aapache CFX, RESTLet 등의 REST 웹 서비스를 구현하기위해 활용되는
+                             프레임웍에 반영된 Java의 JSR-311 스펙을 스프링 프레임웍에서는 준수하지 않으며, 자의적인
+                             환경을 구성하여 제공함.
+    2.2 RESTFul 구현 어노테이션
+        * @Controller, @RequestMapping, @PathVariable, @RequestBody, @ResponseBody
+    2.3 REST 서비스 생성 방법
+        2.3.1 ModelAndView 클래스의 활용
+        2.3.2 HttpMessageConverter 활용
+ 
+        
+
+    MyBatis.txt
+    
+    스프링 설정 파일 
+    	application-mybatis.xml 추가
+    	mvc-transaction.xml의 <tx:annotation-driven transaction-manager="iBatisTransactionMgr"/> 주석 처리 후
+        	                  <tx:annotation-driven transaction-manager="myBatisTransactionMgr"/> 추가
+    MyBatis 설정 파일
+    	mybatis-config.xml 추가
+    	freeboardMapper.xml 추가
+    
+    log4j 설정파일 
+        log4j.xml 추가
+    
+    web.xml 추가
+       	<servlet>
+			<servlet-name>restDispatcherServlet</servlet-name>
+			<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+			<init-param>
+				<param-name>contextConfigLocation</param-name>
+				<param-value>/WEB-INF/context/mvc-*.xml</param-value>
+			</init-param>
+			<load-on-startup>2</load-on-startup>
+		</servlet>
+	
+		<servlet-mapping>
+			<servlet-name>restDispatcherServlet</servlet-name>
+			<url-pattern>/*</url-pattern>
+		</servlet-mapping>
+       
+    web.xml 변경
+		<context-param>
+			<param-name>log4jConfigLocation</param-name>
+			<param-value>classpath:kr/or/ddit/logFactory/log4j.properties</param-value> 
+			=>
+			<param-value>classpath:kr/or/ddit/logFactory/log4j.xml</param-value> 로 변경
+		</context-param>
+    
+	pom.xml 추가
+		<dependency>
+			<groupId>org.lazyluke</groupId>
+			<artifactId>log4jdbc-remix</artifactId>
+			<version>0.2.7</version>
+		</dependency>
+	
+	kr.or.ddit.rest.controller.MainController      : @Controller
+    kr.or.ddit.rest.controller.FreeboardController : @Controller
+    kr.or.ddit.rest.service.IFreeboardService 
+    kr.or.ddit.rest.service.IFreeboardServiceImpl  : @Service
+    kr.or.ddit.rest.dao.IFreeboardMapper           : @Repository

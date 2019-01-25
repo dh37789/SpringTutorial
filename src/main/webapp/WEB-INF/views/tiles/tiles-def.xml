@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.1//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_1.dtd">
+<tiles-definitions>
+	<!-- 
+		타일즈 설정파일 : UI 구성단위 definition.
+		* 1. 백-엔드 컨트롤러의 process(request, response){
+				// 포워딩 기반
+				return "/user/main.tiles";
+			}
+		  2. web.xml 내 선언된 TiesDispatchServlet에서 tiles 확장자가
+		  제거된 서블릿 패스를 추출해서 TIlesServlet에 전달
+		  3.  TilesServlet은 취득한 타일증 서블릿 패스를 타일즈 설정파일에
+		  선언된 definition의 name 값 일치 여부를 검증
+		  4. 일치하는 defintion에 존재하지 않으면 404 처리
+		     일치하는 definition이 존재하면 해당 definition의 template속성의
+		     jsp로 포워딩 처리
+		  5. template속성에 선언된 template jsp는 해당 definition에 선언된
+		       개별 attribute를 활용해서 UI 구성
+		 6. 작성된 UI컨텐츠를 응답객체에 출력 버퍼에 저장 후 클라이언트에 전송.
+	 -->
+	<definition name="user/main" template="/WEB-INF/views/mainTemplate.jsp">
+		<put-attribute name="title" value="타일즈적용"></put-attribute>
+		<put-attribute name="header" value="/WEB-INF/views/layout/header.jsp"></put-attribute>
+		<put-attribute name="left" value="/WEB-INF/views/layout/left.jsp"></put-attribute>
+		<put-attribute name="content_header" value="/WEB-INF/views/layout/content_header.jsp"></put-attribute>
+		<put-attribute name="footer" value="/WEB-INF/views/layout/footer.jsp"></put-attribute>
+	</definition>
+	<definition name="admin/main" template="/WEB-INF/views/admin/mainTemplate.jsp">
+		<put-attribute name="header" value="/WEB-INF/views/admin/inc/header.jsp"></put-attribute>
+	</definition>
+<!-- 	<definition name=""> -->
+<!-- 		<put-attribute name="content" value="/WEB-INF/views/admin/join/loginForm.jsp"></put-attribute> -->
+<!-- 	</definition> -->
+	<!-- 
+		백-엔드 컨트롤러.process(request, response){
+			// 포워딩
+			return "/user/freeboard/freeboardList.tiles";
+		}
+		
+			return "/user/freeboard/freeboardList.tiles";
+			return "/user/freeboard/freeboardView.tiles";
+			return "/user/freeboard/freeboardForm.tiles";
+			return "/user/freeboard/freeboardReplyForm.tiles";
+			
+			return /user/notice/noticeList.tiles
+			return /user/notice/noticeForm.tiles
+			return /user/notice/noticeView.tiles
+	 -->
+	 <!-- 
+	 	public String 컨트롤러 메서드(){
+	 		return "user/freeboard/freeboardList";
+	 	}
+	  -->
+	<definition name="user/*/*" extends="user/main">
+      <put-attribute name="content" value="/WEB-INF/views/{1}/{2}.jsp"></put-attribute>
+   </definition>
+	
+	<definition name="join/*" template="/WEB-INF/views/join/{1}.jsp"></definition>
+<!-- 	<definition name="form/*/*" template="/WEB-INF/views/admin/main.jsp"> -->
+<!-- 		<put-attribute name="content" value="/WEB-INF/views/admin/{1}/{2}.jsp"></put-attribute> -->
+<!-- 	</definition> -->
+<!-- 	<definition name="admin/*/*" extends="admin/main"> -->
+<!-- 		<put-attribute name="content" value="/WEB-INF/views/admin/{1}/{2}.jsp"></put-attribute> -->
+<!-- 	</definition> -->
+	
+	
+	
+<!-- 	<definition name="window" template="/WEB-INF/views/user/window.jsp"> -->
+<!-- 		<put-attribute name="content" value=""></put-attribute> -->
+<!-- 	</definition> -->
+<!-- 	<definition name="window/*/*" extends="window"> -->
+<!-- 		<put-attribute name="content" value="/WEB-INF/views/user/{1}/{2}.jsp"></put-attribute> -->
+<!-- 	</definition> -->
+<!-- 	<definition name="user/freeboard/freeboardForm" extends="user/main"> -->
+<!-- 		<put-attribute name="content" value="/WEB-INF/views/user/freeboard/freeboardForm.jsp"></put-attribute> -->
+<!-- 	</definition> -->
+<!-- 	<definition name="user/freeboard/freeboardView" extends="user/main"> -->
+<!-- 		<put-attribute name="content" value="/WEB-INF/views/user/freeboard/freeboardView.jsp"></put-attribute> -->
+<!-- 	</definition> -->
+<!-- 	<definition name="user/freeboard/freeboardReplyForm" extends="user/main"> -->
+<!-- 		<put-attribute name="content" value="/WEB-INF/views/user/freeboard/freeboardReplyForm.jsp"></put-attribute> -->
+<!-- 	</definition> -->
+</tiles-definitions>

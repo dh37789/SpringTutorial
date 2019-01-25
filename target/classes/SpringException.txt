@@ -1,0 +1,13 @@
+스프링 익셉션 처리
+1. 처리 방법
+   1.1 어노테이션 활용
+       default로 선언된 AnnotationMethodHandlerExceptionResolver가 활용되며,
+       HandlerExceptionResolver 선언시 동작하지 않음.
+       @ExceptionHandler : 선언된 컨트롤러내에서 국지적으로 활용됨.
+       @ControllerAdvice : 어플리케이션 전역적으로 활용됨.
+                           스프링 3.2 버전부터 지원.
+   
+   1.2 HandlerExceptionResolver 활용
+       kr.or.ddit.common.CustomGenericException
+       kr.or.ddit.join.controller.JoinController
+   

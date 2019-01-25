@@ -1,0 +1,209 @@
+Spring Security
+ * ACEGI(13579 알파벳)로 시작된 필터 기반의 스프링을 활용한 최소한의 코드 및 환경 설정으로 대형 웹서비스에 
+   적용된 보안 수준 레벨과 같은 보안을 유지할수 있음.
+1. 보안
+   1.1 정의
+       1.1.1 Authentication(인증) : 사용자 본인 확인 절차.
+             (1) 종류
+                (a) Credential(자격 기반 인증) : Principle(아이디) 와 Credential(비밀번호) 에 기반한 인증.
+                (b) Two-factor authentication (이중인증) : 로그인 후 보안 인증 절차등의 2중 인증 진행.
+                (c) 물리적 인증 : 물리적 기계 장치(지문 인식기)를 이용한 인증방식.
+                
+       1.1.2 Authorization(인가) : 인증 과정을 거쳐 사용자의 자원 접근 권한 확인 절차.
+             (1) 종류
+                (a) Granted Authority(부여된 권한) : 사용자 인증을 가정하여 해당 사용자에게 부여된 리소스 이용 권한의 
+                                                     지속적인 검증을위해 저장(DB 등) 관리.
+                                                     권한, 그룹(퍼미션) 등 다양한 정보 저장을위한 DB 테이블 리소스 필요
+                (b) Resource Authority(리소스 권한) : 리소스 이용 권한이 없는 사용자로부터 해당 사용자의 리소스 이용을
+                                                     위한 요청 인터셉팅(웹 보안 분야에서의 기본 기술).
+                (c) RoleVoter : 부여된 권한(GrantedAuthority)을 검사하는 클래스.
+                                권한부여시 ROLE_ 접두어로 시작 여부 검증.
+                                ROLE_* 접두어로 시작되지않은 권한은 접근 보류(ACCESS_ABSTAIN) 처리.
+                                스프링 시큐리티 내부적인 권한 표현은 문자열을 활용.
+                                
+                                가) 스프링에서 제공하는 기본 권한(Authority)
+                                    - ROLE_ANONYMOUS                       모든 사용자 
+									- ROLE_USER                            일반 사용자 
+									- ROLE_ADMIN                           관리자 
+									- ROLE_RESTRICTED                      제한된 사용자 
+									- IS_AUTHENTICATED_ANONYMOUSLY         익명 사용자 
+									- IS_AUTHENTICATED_FULLY               인증된 사용자 
+									- IS_AUTHENTICATED_REMEMBERED          REMEMBERED 사용자
+								나)  
+			    (d)AuthenticationManager : 스프링 시큐리티의 인증 관리자
+                                - ACCESS_GRANTED(접근 승인, 1) : RoleVoter는 접근 결정자에게 접근 승인 요청.
+                                - ACCESS_ABSTAIN(접근 보류, 0) : RoleVoter는 접근 결정자에게 접근 보류 요청.
+                                - ACCESS_DENIED(접근 거부, -1) : RoleVoter는 접근 결정자에게 접근 거부 요청.
+       1.1.3 리소스(인터셉터)
+             (1) 웹 보안 분야에서는 리소스의 접근 권한 설정을 Resource Authority의 인터셉터 방식으로 구현.
+
+2. 스프링 시큐리티
+   2.1 정의
+       2.1.1 엔터프라이즈 어플리케이션을 위한 인증, 권한처리 서비스를 제공하는 보안 솔루션.
+       2.1.2 Filter와 AOP를 활용해 보안을 강제하고, Spring IoC의 lifecycle 기반으로 동작.
+       2.1.3 Authentication, Web URL authorization, Method 호출 authorization, 도메인 객체 기반의
+             security 처리, 채널보안(https 강제) 등의 기능 수행.
+       2.1.4 사용자 요청 보안과 더불어 Service layer 및 인스턴스 수준의 보안 제공으로 웹 클라이언트 외의 
+             다양한 rich 클라이언트/웹서비스에 대한 보안 제어 지원.
+       2.1.5 재사용성, 이식성, 코드 품질, 레퍼런스(정부,은행,대학,기업 등 많은 business field),
+             다양한 타 프레임워크 지원.
+       2.1.6 XML 기반의 권한 체크
+   2.2 구조
+                                    DelegatingFilterProxy -------> Spring Security
+                                              ^                    (인증, 허가 판단)      
+                                              |                         |
+                                              |                         | 허가된 요청시
+                 Client---------------------->|------------------> 서버 리소스 
+
+3. dependency 추가
+    <!-- Spring Security -->
+	<dependency>
+		<groupId>org.springframework.security</groupId>
+		<artifactId>spring-security-web</artifactId>
+		<version>${spring-framework-security.version}</version>
+	</dependency>
+    <dependency>
+		<groupId>org.springframework.security</groupId>
+		<artifactId>spring-security-config</artifactId>
+		<version>${spring-framework-security.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.springframework.security</groupId>
+		<artifactId>spring-security-taglibs</artifactId>
+		<version>${spring-framework-security.version}</version>
+	</dependency>
+4. web.xml 선언
+   4.1 웹 어플리케이션의 스프링 시큐리티 적용은 ServletRequest의 필터를 활용.
+   4.2 스프링 시큐리티의 필터들의 선언과 필터 체인을통해 인증, 인가 처리가 수행됨.
+   
+	   <!-- filter-name은 반드시 springSecurityFilterChain으로 선언되어야 함.
+	        스프링 시큐리티가 모든 URL요청을 인터셉터 처리.
+		-->
+		<filter>
+			<filter-name>springSecurityFilterChain</filter-name>
+			<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+		</filter>
+		<filter-mapping>
+			<filter-name>springSecurityFilterChain</filter-name>
+			<url-pattern>/*</url-pattern>
+		</filter-mapping>
+		
+		* 에러발생 : No bean named 'springSecurityFilterChain' is defined
+		  대응 : Spring Security 라이브러리 import 확인.
+		         Spring Security 관련 설정파일 작성 확인(미작성 또는 작성 미스).
+		* web.xml내 springSecurityFilterChain Filter 등록시 맵핑되는 url-pattern 선언시
+		  /*로 선언.
+		  - Spring Security 내부적으로 활용되는 URL은 확장자를 사용하지 않으므로, 확장자 선언시
+		    404 에러 발생
+   4.3 Security Filter Chain
+        * 체이닝된 각 필터를 대상으로 한 적절한 추가/삭제 설정을통해 웹 어플리케이션에 보안을 정의함.
+        SecurityContextPersistenceFilter : SecurityContextRepository에서 SecurityContext를 로드하고 저장하는 일을 담당함.
+		DefaultLoginPageGeneratingFilter : 폼기반 또는 OpenID 기반 인증에 사용하는 가상URL에 대한 요청을 감시하고 로그인 폼 
+		                                   기능을 수행하는데 필요한 HTML을 생성함.
+		UsernamePasswordAuthenticationFilter  : 사용자명과 비밀번호로 이뤄진 폼기반 인증에 사용하는 가상 URL요청을 감시하고 
+		                                        요청이 있으면 사용자의 인증을 진행함.
+		LogoutFilter                     : 로그아웃 URL로 지정된 가상URL에 대한 요청을 감시하고, 매칭되는 요청이 있으면 
+		                                   사용자를 로그아웃시킴.
+		BasicAuthenticationFilter        : HTTP 기본 인증 헤더를 감시하고 이를 처리함. 
+		RequestCacheAwareFilter          : 로그인 성공 이후 인증 요청에 의해 가로채어진 사용자의 원래 요청을 재구성하는데 사용됨. 
+		SecurityContextHolderAwareRequestFilter : HttpServletRequest를 HttpServletRequestWrapper를 상속하는 하위 클래스
+		                                          (SecurityContextHolderAwareRequestWrapper)로 감싸서 필터 체인상 하단에 
+		                                          위치한 요청 프로세서에 추가 컨텍스트를 제공함. 
+		AnonymousAuthenticationFilter    : 해당 필터가 호출되는 시점까지 사용자가 아직 인증을 받지 못했다면 요청 관련 인증 토큰에서 
+		                                   사용자가 익명 사용자로 나타나게 됨 
+		SessionManagementFilter          : 인증된 주체를 바탕으로 세션 트래킹을 처리해 단일 주체와 관련한 모든 세션들이 트래킹
+		                                   되도록 도움. 
+		ExceptionTranslationFilter       : 해당 필터는 보호된 요청을 처리하는 동안 발생할 수 있는 기대한 예외의 기본 라우팅과 
+		                                   위임을 처리함. 
+		FilterSecurityInterceptor        : 해당 필터는 권한부여와 관련한 결정을 AccessDecisionManager에게 위임해 권한부여 결정 
+		                                   및 접근 제어 결정을 쉽게 만들어 줌.          
+                                           
+        * 필터 체인의 가장 마지막 FilterSecurityInterceptor는 선행된 필터들의 실행 정보를 토대로 인증 및 인가를 판단하여 결정.           
+             
+5. 설정
+   5.1 기본 설정
+        - 일반적인 웹 기반 및 메서드 기반 설정에 적용할 수 있는 강력한 기능의 축약 구문.
+        - 복잡한 설정을 적용하기 위해 개발자들이 내부적으로 일어나는 세부 내용에 대해 알 필요가 없다.
+        - security 네임스페이스 핸들러 코드가 다양한 설정 이슈 관련 문제를 파악하고 경고해준다.
+        - 설정 과정에서 필요한 부분을 빼놓고 설정할 위험이 극히 적다.
+   5.2 커스터마이징 설정
+        - 확장, 오버라이드, 표준 스프링 스택에서 의도적으로 일부를 생략하는 것과 같은 유연성을 허용한다.
+        - filter-chain 엘리먼트의 pattern 어트리뷰트를 사용해 URL 패턴에 의존한 커스텀 필터 체인 및 인증을 허용한다. 
+          이러한 기능은 웹 서비스 또는 REST 인증과 사용자 기반 인증이 함께 사용될 때 필요할 수 있다.
+        - 설정 파일들이 스프링 시큐리티 네임스페이스 처리와 직접적인 연관성이 없다.
+        - 인증 관리자를 명시적으로 설정하거나 오버라이드 할 수 있다.
+        - 단순한 security 네임스페이스를 적용할 때보다 훨씬 더 많은 설정 옵션을 사용할 수 있다.
+	
+6. 설정 파일
+   6.1 <security:http> 선언
+	    use-expressions : intercept-url의 pattern속성에 맵핑되는 uri SpEl 표현식 적용.
+	    access-denied-handler : 미인가된 권한 또는 허용되지않은 url로 접근시의 처리.
+	                            * HTTP Status 403 - Access is denied 처리.
+	    create-session : 스프링 시큐리티에의해 세션 생성.
+	                     ifRequired : default
+	                     always     : 항상 새로운 세션 생성.
+	                     never      : 스프링 시큐리티는 세션을 생성하지않으며,
+	                                  WAS에의해 생성된 단일 세션을 활용.
+	                     stateless  : 세션을 활용하지 않으며, Root-Context를 작성할수없음.
+	                     * ifRequired 선언시 WAS에의해 생성된 세션을 무효화 후 스프링 시큐리티가 세션을 새로 생성.
+	                     * naver 선언시 WAS에의해 생성된 세션을 그대로 스프링 시큐리티에서 활용. 
+	    authentication-manager-ref : authentication-manager의 id 속성값 설정. 
+		intercept-url : 권한의 설정과 해당 권한을통한 접근 URL 설정.
+		                access : 권한 설정
+						pattern : 클라이언트의 요청 url 패턴 적용. 
+		    				      pattern="/lprod/*"  - 요청 uri내 /lprod/의 모든 확장자 요청을 포함.
+		        				  pattern="/lprod/**" - 요청 uri내 /lprod/ 하위의 모든 uri의 모든 확장자 요청을 포함.
+		        		filter :  
+		security : 스프링 시큐리티 적용 여부.
+		auto-config : default true - 스프링 시큐리티 기본설정(10개의 필터로 구성된 체인)을통해 보안 적용.
+		                     false - 커스터마이징 설정을통해 보안 적용.
+		hasAuthority('Authority명') : ROLE 권한 확인.
+		hasRole() : hasAuthority()과 동일.
+		hasIpAddress('ip주소') : ip 주소를 통해 권한 확인.
+		hasAnyRole('Authority명','Authority명') : 열거된 ROLE 권한 중 맵핑 확인.
+		permitAll : 모든 접근자를 항상 승인.
+	    denyAll : 모든 사용자의 접근을 거부.
+		anonymous : 익명 사용자 여부 확인.
+		authenticated : 인증 사용자 여부 확인.
+		rememberMe : 사용자가 remember me를 사용한 인증 여부 확인.
+		fullyAuthenticated : 사용자가 모든 크리덴셜을 갖춘 상태에서 인증했는지 확인. 
+		      
+	    form-login : 스프링 시큐리티 제공 기본 Authority와 pattern속성값과 일치하는 클라이언트의 url 요청시
+	                 해당 요청을 intercept 후 authentication-manager의 user에 선언된 여부를 확인.
+	                 스프링 시큐리티는 Credential(자격 기반 인증)을위한 기본 loginForm을 제공.
+	                 스프링 시큐리티가 제공하는 Credential(자격 기반 인증)을위한 기본 loginForm을 
+	                 사용자 정의 loginForm으로 설정.
+					login-page           로그인 페이지 주소를 지정
+					username-parameter   로그인 페이지 form에 있는 username을 저장한 변수이름 지정
+					password-parameter   로그인 페이지 form에 있는 password을 저장한 변수이름 지정 
+					login-processing-url 로그인 페이지 form action에 입력할 주소 지정
+					default-target-url   인가된 사용자 인증 후 호출할 주소 지정
+					authentication-failure-url 비인가된 사용자 인증 실패 후 호출할 주소 지정
+                    authentication-success-handler-ref 인가된 사용자 인증 후 추가 로직 및 상기 default-target-url 처리 
+                    authentication-failure-handler-ref 비인가된 사용자 인증 실패 후 로직 및 상기 authentication-failure-url 처리
+                    * default-target-url와 authentication-success-handler-ref는 병행 선언은 가능하지만, 병행 실행되지 않음. 
+                    * authentication-failure-url와 authentication-failure-handler-ref는 병행 선언은 가능하지만, 병행 실행되지 않음.
+                     
+         logout   : 스프링 시큐리티 제공 logout 처리.
+                    컨트롤러의 로그아웃 처리 컨트롤러 메서드에 logout-success-url과 invalidate-session를 위한 
+                    코드가 불필요. 
+                    logout-url           로그아웃 페이지 주소를 지정
+                    logout-success-url   로그아웃 성공인 경우 호출할 주소 지정
+                    invalidate-session   로그아웃시 세션 삭제 여부 지정
+                    delete-cookies       로그아웃시 삭제될 쿠키명을 , 단위로 열거
+                    success-handler-ref  로그아웃시 처리 로직.
+                    * logout-success-url와 success-handler-ref는 병행 선언될수 없음.
+
+         session-management : 스프링 프레임웍의 세션 처리.
+                              스프링 시큐리티는 로그인을통해 생성된 세션내에 WebAttributes 클래스의 상수를 활용하여 다양한
+                              값을 저장함.
+                               
+         			invalid-session-url  세션 무효화시 처리 url
+                    concurrency-control  동시 실행 제어
+                           max-sessions                최대 세션 갯수. 1 설정으로 중복 로그인 방지.
+                           error-if-maximum-exceeded   중복 로그인 방지 설정으로 authentication-failure-url 설정 처리됨.
+                           expired-url                 세션 만료시 처리 url.
+                             
+
+
+         

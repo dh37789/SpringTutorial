@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap
+    PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN"      
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+<sqlMap namespace="freeboard">
+<typeAlias alias="freeboardVO" type="kr.or.ddit.vo.FreeboardVO"/>
+	<sql id="selectFree">
+		SELECT * FROM FREEBOARD
+		
+	</sql>
+	<!-- 	<select id="incrementSeq" parameterClass="freeboardVO" resultClass="String"> -->
+<!-- 		SELECT MAX(BO_SEQ) + 1 -->
+<!-- 		  FROM FREEBOARD -->
+<!-- 		  WHERE BO_GROUP = #bo_group# -->
+<!-- 	</select> -->
+<!-- 	<update id="updateSeq" parameterClass="freeboardVO"> -->
+<!-- 	UPDATE FREEBOARD -->
+<!-- 	   SET BO_SEQ = BO_SEQ + 1 -->
+<!-- 	 WHERE BO_GROUP = #bo_group# -->
+<!-- 	 <![CDATA[ -->
+<!-- 	   AND BO_SEQ > #bo_seq# -->
+<!-- 	 ]]> -->
+<!-- 	</update> -->
+	<sql id="searchCondition">
+		<!-- AND는 prepend="AND" 쿼리의 AND를 없애준다.(자동으로 붙여준다.) -->
+		<dynamic prepend="AND">
+		<!-- AND가 참일시 isNotEmpty에서 (를 열어서 AND부분을 묶어준다.) -->
+			<isNotEmpty property="search_keyword" open="(" close=")">
+				<isEqual property="search_keycode" compareValue="TOTAL">
+						BO_TITLE LIKE '%'||#search_keyword#||'%'
+					OR 	BO_CONTENT LIKE '%'||#search_keyword#||'%'
+					OR	BO_WRITER LIKE '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="TITLE">
+						BO_TITLE LIKE '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="CONTENT">
+					 	BO_CONTENT LIKE '%'||#search_keyword#||'%'
+				</isEqual>
+				<isEqual property="search_keycode" compareValue="WRITER">
+						BO_NICKNAME LIKE '%'||#search_keyword#||'%'
+				</isEqual>
+			</isNotEmpty>
+		</dynamic>
+	</sql>
+	
+	<select id="boardList" resultClass="freeboardVO" parameterClass="map">
+		SELECT B.*
+		FROM (SELECT ROWNUM rnum, A.*
+			FROM (<include refid="selectFree"/>
+		      	  WHERE BO_STATUS = 'y'
+			  	  <include refid="searchCondition"/>
+			  	  ORDER BY BO_GROUP, BO_SEQ DESC) A) B
+   	   <![CDATA[
+		WHERE B.RNUM <= #startCount#
+		  AND B.RNUM >= #endCount#
+	   ]]>
+		ORDER BY B.RNUM DESC
+	</select>
+	
+	<select id="getFreeboard" parameterClass="map" resultClass="java.util.HashMap">
+		SELECT * 
+		FROM FREEBOARD A LEFT OUTER JOIN FILEITEM B
+	    ON A.BO_NO = B.FILE_BO_NO
+	    WHERE BO_NO = #bo_no#
+	</select>
+	
+	<insert id="insertBoard" parameterClass="freeboardVO">
+		<selectKey keyProperty="bo_no" resultClass="String">
+			SELECT FREEBOARD_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+			INSERT INTO FREEBOARD(BO_NO, BO_TITLE, BO_WRITER, BO_NICKNAME, BO_PWD,
+			                      BO_MAIL, BO_IP, BO_CONTENT, BO_HIT, BO_REG_DATE, BO_GROUP)
+		       	           VALUES(#bo_no#, #bo_title#, #bo_writer#, #bo_nickname#, #bo_pwd#,
+		       	                  #bo_mail#, #bo_ip#, #bo_content#, 0, SYSDATE, #bo_no#)
+	</insert>
+	
+	<update id="addHit" parameterClass="String">
+		UPDATE FREEBOARD
+		SET BO_HIT = BO_HIT+1
+		WHERE BO_NO = #bo_no#
+	</update>
+
+	<update id="deleteBoard" parameterClass="map">
+		UPDATE FREEBOARD
+		SET BO_STATUS = 'n'
+		WHERE BO_NO = #bo_no#
+	</update>
+
+	<update id="updateBoard" parameterClass="freeboardVO">
+		UPDATE FREEBOARD
+		SET BO_TITLE = #bo_title#,
+		    BO_MAIL = #bo_mail#,
+		    BO_NICKNAME = #bo_nickname#,
+		    BO_CONTENT = <![CDATA[#bo_content#]]>
+		WHERE BO_NO = #bo_no#
+	</update>
+	<select id="totalCount" parameterClass="map" resultClass="int">
+		SELECT COUNT(BO_NO)
+		  FROM FREEBOARD
+		 WHERE BO_STATUS = 'y'
+		<include refid="searchCondition"/>
+	</select>
+	<select id="increaseSeq" parameterClass="FreeboardVO" resultClass="String">
+		SELECT MAX(BO_SEQ)+1 
+		FROM   FREEBOARD
+		WHERE  BO_GROUP = #bo_group# 
+	</select>
+	<update id="updateSeq" parameterClass="FreeboardVO">
+		UPDATE FREEBOARD
+		SET    BO_SEQ = BO_SEQ + 1
+		WHERE  BO_GROUP = #bo_group#
+		<![CDATA[
+		AND    BO_SEQ > #bo_seq#
+		]]>
+	</update>
+
+	<insert id="insertFreeboardReply" parameterClass="freeboardVO">
+		<selectKey keyProperty="bo_no">
+			SELECT FREEBOARD_SEQ.NEXTVAL FROM DUAL
+		</selectKey>
+			INSERT INTO FREEBOARD(BO_NO, BO_TITLE, BO_WRITER, BO_NICKNAME, BO_PWD,
+			                      BO_MAIL, BO_IP, BO_CONTENT, BO_HIT, BO_REG_DATE, BO_GROUP, BO_SEQ, BO_DEPTH)
+		       	           VALUES(#bo_no#, #bo_title#, #bo_writer#, #bo_nickname#, #bo_pwd#,
+		       	                  #bo_mail#, #bo_ip#, #bo_content#, 0, SYSDATE, #bo_group#, #bo_seq#, #bo_depth#)
+	</insert>
+</sqlMap>

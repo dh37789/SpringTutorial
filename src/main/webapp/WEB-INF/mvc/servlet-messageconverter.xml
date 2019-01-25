@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
+	
+	<!-- 
+		RedirectAttribute : 컨트롤러 메서드에서 다른 컨트롤러 메서드를 대상으로 redirect처리 시 전송되는 값(?message)
+		
+							public String updateMember(MemberVO memberInfo,
+										RedirectAttribute redirectAttribute){
+								redirectAttribute.addFlashAttribute("키", 값);
+								return "redirect:/member/memberList.do?message=값";(X)
+								return "redirect:/member/memberList.do";
+							}
+							=>
+							public String memberList(String message){
+								Map map = RequestContextUtiles.getInputFlas
+								map.get("키");
+							}
+	 -->
+	<mvc:annotation-driven></mvc:annotation-driven>
+</beans>

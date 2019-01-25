@@ -1,0 +1,106 @@
+진행 순서
+* src/main/doc에서 관련 text 파일을 먼저 학습 후, 순번에 열거된 개별 xml 파일, 클래스 등을 
+  활용해 학습합니다. 
+
+1. json데이타 변환 view 객체 생성
+   application-config.xml 
+   application-viewResolver.xml 참고.
+
+2. exception 처리
+   SpringException.txt
+   
+   application-exception.xml
+   ex) kr.or.ddit.common.CustomGenericException
+       kr.or.ddit.join.controller.JoinController
+   
+3. 설정파일에 선언된 <util:properties id="jdbc" location="......." />
+    을 빈 클래스 내에서  프로퍼티스 Injection 처리
+	// util:properties 등록시의 id 속성값과 일치하는 변수명 선언과 @Autowired를통해
+	// 주입처리가능
+	@Autowired
+	private Properties jdbc;
+	
+   ex) kr.or.ddit.member.action.MemberController
+   
+   application-config.xml 
+   application-viewResolver.xml 참고.
+   application-props.xml  
+   
+4. Spring form tag 적용
+	SpringFormTag.txt
+	* memberMgr.jsp의 검색 초기값을 form태그를 통해 구현 과제.
+    
+5. Spring transaction 처리
+    * 트랜잭션 매니저와 <tx:annotation-driven> 선언은 root-context가 아닌
+      servlet-context에 정의되어야함.
+    SpringTransaction.txt
+   
+    log4j.properties
+    application-props.xml
+    application-ibatis.xml
+    mvc-transaction.xml
+ 
+6. Spring Quartz
+   SpringQuartz.txt 
+   
+   application-quartz.xml
+    
+7. Spring Task
+   SpringTask.txt
+   
+   application-task.xml
+   ex) kr.or.ddit.join.controller.JoinController(회원일때...)
+   	   kr.or.ddit.task.XMLBaseSimpleTaskExecutor
+       kr.or.ddit.task.AnnotationBaseTaskScheduler
+
+8. Spring Batch    
+   SpringBatch.txt
+   SpringBatchStructure.png
+    
+   // Read Target Data
+   ex) kr.or.ddit.batch.csv.insertLprodInfo.csv
+   	   kr.or.ddit.batch.mapper.ReportFieldSetMapper
+   	   kr.or.ddit.batch.processor.CustomProcessor
+   	   kr.or.ddit.batch.report.Report
+   	   kr.or.ddit.join.controller.JoinController(회원아닐때...)
+       kr.or.ddit.batch.writer.CustomItemWriterDB(step2의 오라클 대상 insert 처리 ItemWriter)  
+    
+   application-batch.xml
+   
+9. Spring Security
+   SpringSecurity.txt    
+       
+   web.xml 필터 등록
+      <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>       
+   
+   ex) WEB-INF\view\security\loginForm.jsp
+   	   inc/header.jsp
+       @Controller
+       kr.or.ddit.security.controller.SecurityMemberController
+   	   @Component
+   	   kr.or.ddit.security.handler.CustomAccessDeniedHandler	
+       kr.or.ddit.security.handler.CustomLoginSuccessHandler
+       kr.or.ddit.security.handler.CustomLoginFailureHandler
+       kr.or.ddit.security.handler.CustomLogoutSuccessHandler
+       
+       kr.or.ddit.security.provider.CustomAuthenticationProvider
+       
+       web.xml
+       kr.or.ddit.security.event.listener.SessionCreationListener
+       kr.or.ddit.security.event.listener.SessionDestroyListener
+       
+       kr.or.ddit.security.service.CustomCryptoAuthenticationService
+       kr.or.ddit.security.encode.CustomPasswordEncoder
+              
+   application-security.xml       
+
+        
+       
+       
+       
+       
+       
+       
+       
+       
+       

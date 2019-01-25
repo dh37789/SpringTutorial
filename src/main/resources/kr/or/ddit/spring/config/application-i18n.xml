@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+	<!-- 
+		스프링 프레임웍 내에서 국제화 서비스 설정
+		1. javascript, html 컨텐츠를 활용해서 UI를 구성시 클라이언트의 접근 국가,
+		   언어 코드를 기초로 해당 언어가 반영된 UI를 출력
+		   요청 헤더 : Accept-Language의 값(국가코드-언어코드)
+		2. Accept-Language 헤더 값을 기준으로 준비된 properties 파일을 선택
+		   message.properties    준비되지 않은 국가로부터 접근시 활용(default)
+		   message-ko.properties 한국에서 접근
+		   message-jp.properties 일본에서 접근
+		   message-en.properties 미국에서 접근
+		   message-*.properties  국가 코드를 기준으로 선택
+	 -->
+	 <bean id="localeResolver" class="org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver"></bean>
+	 <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource"
+	 	p:basename="kr/or/ddit/i18n/config/message"
+	 	p:defaultEncoding="UTF-8">
+	 </bean>
+	 
+	 <bean id="messageAccessor" class="org.springframework.context.support.MessageSourceAccessor"
+	 	c:messageSource-ref="messageSource">
+	 </bean>
+</beans>

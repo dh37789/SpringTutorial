@@ -1,0 +1,206 @@
+Spring Batch
+    java batch 처리 : String [] queries = {
+										    "insert into lprod(lprod_id, lprod_gu, lprod_nm) values (10, 'P501', '기타1')",
+										    "insert into lprod(lprod_id, lprod_gu, lprod_nm) values (11, 'P502', '기타2')",
+										    "insert into lprod(lprod_id, lprod_gu, lprod_nm) values (12, 'P503', '기타3')",
+										};
+                      ===================== BAD =============================================
+					  Connection connection = new getConnection();
+					  Statement statement = connection.createStatement();
+             
+					  for (String query : queries) {
+						    statement.execute(query);
+					  }
+					  statement.close();
+					  connection.close();
+                      ===================== GOOD =============================================
+					  String sql = "insert into lprod(lprod_id, lprod_gu, lprod_nm) values (?, ?, ?)";
+					  Connection connection = new getConnection();
+					  PreparedStatement ps = connection.prepareStatement(sql);
+					 
+					  for (LProdVO lprodInfo : lprodList) {
+					      ps.setString(1, lprodInfo.getLprod_id());
+					      ps.setString(2, lprodInfo.getLprod_gu());
+					      ps.setString(3, lprodInfo.getLprod_nm());
+					      ps.addBatch();
+					  }
+					  ps.executeBatch();
+					  ps.close();
+					  connection.close();
+                      ===================== GOOD =============================================
+					  try {
+						  SqlMapClient.startTransaction();
+						  SqlMapClient.startBatch();
+						  for (LProdVO lprodInfo : lprodList) {
+						      SqlMapClient.insert("lprod.insertLprodInfo", lprodInfo);
+						  }
+						  SqlMapClient.executeBatch();
+						  SqlMapClient.commitTransaction();
+					  }finally {
+					      SqlMapClient.endTransaction();
+					  }	   
+
+ * spring batch reference
+   http://projects.spring.io/spring-batch/
+ * 라이브러리 다운로드
+   http://docs.spring.io/downloads/nightly/release-download.php?project=BATCH
+     spring-batch-2.2.7.RELEASE-no-dependencies.zip
+   
+1. 배치(일괄처리) 프로세스
+   일괄처리(배치 프로세싱)는 일련의 수행되어야하는 작업들을 하나의 작업 단위로 팩키징하여 
+   연속적인 실행을통해 다양한 컴포넌트의 재사용과 표준화 처리를통한 품질 향상을 도모한다.
+   또한, 일괄처리는 개별 시스템 및 어플리케이션 실행 모델에의해 정기 또는 비정기적으로 
+   수행되어야하는 작업 및 작업량에 적용된다.
+   
+2. 스프링 배치의 기능
+   2.1 Job Repository를 통한 배치 모니터링
+   2.2 배치에 적합한 트랜잭션 처리를 위해 주기적인 commit방식 지원.
+   2.3 배치작업의 재시도, 재시작, 건너뛰기 등의 정책을 설정으로 적용.
+   2.4 Commit 개수, Rollback 개수, 재시도 횟수 등 배치실행 통계 정보를 제공.
+   2.5 다양한 실행 방법 지원 - Quartz, CommandLine, JMX콘솔, OSGi, 동기/비동기-병렬 실행 등
+  
+3. 스프링 배치 구조
+   3.1 Run Tier 
+       Application의 scheduling, 실행을 담당.
+         - 스프링배치는 따로 Scheduling의 기능은 제공하지 않음.
+           Quartz나 Cron Tab 활용 권고.
+
+   3.2 Job Tier 
+       전체적인 Job의 수행을 책임.
+         - Job내의 각 Step들을 정책에 따라 순차적으로 수행.
+   
+   3.3 Application Tier 
+       Job을 수행하는데 필요한 component.
+    
+   3.4 Data Tier 
+       Database, File 등 물리적인 타겟 리로스.
+
+4. 용어 정의
+   4.1 JobLauncher
+       JobLauncher는 배치잡 실행.
+       Job과 Parameter를 취득. 
+       JobExecution를 반환.
+   4.2 Job 
+         비지니스 로직을 단일 또는 다수의 Step으로 구성되어 실행.
+         논리적인 잡 실행 개념.
+         잡을 구성하는 Step의 상황별 분기 처리.
+         job configuration과 대응.
+         4.2.3 속성
+               id : Job 식별자
+               restartable : 스프링 배치가 job의 재실행 여부 지정. default true.
+                             false 선언시 스프링 배치는 해당잡을 1번만 실행하며, 이상 실행시
+                             JobRestartException 발생.
+               incrementer : Job 파라미터 값을 설정하기 위해 활용되는 객체의 레퍼런스 지정. 
+                             객체는 JobOperator 인터페이스의 startNextInstance 메소드를 사용해서 
+                             배치 job 을 실행시키는 경우에 활용.
+               abstract : job의 추상 레벨 여부 지정. 
+                          true 선언시 해당 job 설정이 기타 Job에 상속 가능함을 의미.
+               parent : 해당 job의 상위 job 설정.
+               job-repository : 해당 job을위한 job repository 지정. 
+                                미설정시 기본 jobRepository로 설정됨. 
+               Step의 병렬처리 가능. 
+   4.3 JobParameter 
+         배치잡을 시작하는데 사용하는 파라미터의 집합.
+         잡이 실행되는 동안에 잡을 식별하거나 잡에서 참조하는 데이터로 사용.
+   4.4 JobInstance 
+         논리적인 Job 실행.
+         Job + JobParameter.
+   4.5 JobExecution 
+         단일 시도되는 Job 실행을 의미하는 기술적인 개념.
+         시작시간, 종료시간, 상태(시작, 완료, 실패), 종료상태의 속성을 포함.
+   4.6 JobRepository 
+         수행되는 Job에 대한 정보를 담고 있는 저장소.
+         배치잡의 실행 정보(시작/정지/실행횟수/실행결과) 등의 Batch수행과 관련된 정보 저장.
+   4.7 Step
+         배치잡을 구성하는 독립적인 하나의 단계.
+         실제 배치 처리 과정을 정의하고, 제어하는데 필요한 모든 정보를 포함.
+         Step의 내용은 전적으로 개발자의 선택에 따라 구성됨.
+         4.7.1 속성
+               next : 다음 수행 step의 id or name 속성값 
+               parent : 상위 step 설정
+               abstract : step 설정의 추상 레벨 여부 지정. 
+                          true 선언시 해당 step 설정이 기타 step에 상속 가능함을 의미.
+               allow-start-if-complete : Step의 실행이 성공한 Step은 재 시작시 스킵됨.
+                                         재시작시에 스킵되지않고 재실행 여부 설정.
+   4.8 StepExecution 
+         하나의 step을 실행하는 한번의 시도.
+         시작시간, 종료시간 , 상태(시작, 완료, 실패), 종료상태의 속성을 포함.
+   4.9 Item 
+         처리할 데이터의 가장 작은 구성 요소.
+            -ex) 파일내 라인, 테이블 단일 레코드, Xml 파일의 특정 Element 등)
+   4.10 Item Reader 
+         Step안에서 File 또는 DB등의 Data Tier를 대상으로 Item을 읽기.
+         반복적으로 순차적인 값을 리딩 반환하며, 더 이상 읽어올 Item이 없을 때에는 read()메소드에서 null값을 반환. 
+   4.11 Item Writer 
+         Step안에서 File 또는 DB등으로 Item을 저장.
+   4.12 Item Processor 
+         Item Reader에서 읽어 들인 Item 대상으로 비지니스 로직 수행.
+   4.13 Tasklet
+         Step 내부의 트랜잭션 또는 반복되는 처리 작업
+         4.13.1 속성
+                ref : Tasklet 인터페이스를 구현한 스프링 빈의 id. 
+                      사용자 정의 tasklet 사용시 설정.
+                transaction-manager : Tasklet의 트랜젝션 처리시 활용될 트랜젝션 매니저 설정. 
+                                      tasklet의 디폴트 transactionManager.
+                allow-start-if-complete : Tasklet의 실행이 성공한 Tasklet은 재 시작시 스킵됨.
+                                          재시작시에 스킵되지않고 재실행 여부 설정.
+   4.14 Chunk 
+         하나의 Transaction내의 수행될 Item 팩키지.
+         reader, writer, processor는 개별 단일 스레드 상에서 수행.
+         (Chunk size가 10이라면 하나의 transaction안에서 10개의 item에 대한 처리 후, commit)
+         4.14.1 속성
+                reader : ItemReader 
+                writer : ItemWriter
+                processor : reader와 writer 사이의 비지니스 로직 단계
+                transaction-manager : 프로세싱 중 트랜잭션의 시작과 커밋을 담당할 트랜잭션 매니져
+                commit-interval : 트랜잭션 매니저에서 컴밋할 처리 아이템의 수
+  4.16 Reader/Writer
+        4.16.1 ItemReader
+		        ListItemReader : Java.util.List 객체를 통해서 ItemReader를 구현. 테스트용.
+				DelegatingItemReader : 내부에 다른 ItemReader를가지고 있는 ItemReader.
+				ValidatingItemReader : DelegatingItemReader를 확장한 클래스로 값을 반환하기 전에 validation을 수행.
+				AggregateItemReader : DelegatingItemReader를 확장한 클래스. Read 메소드의 결과로 
+				                      java.util.Collection객체를 반환.
+				FlatFileItemReader : 플랫 파일을 읽어와서 read메소드에서 String을 반환. 
+				StaxEventItemReader : StAX를 통해서 XML파일에서 Item을 읽음
+				JdbcCursorItemReader : JDBC를 이용해서 DB에서 Item을 읽음.
+				DrivingQueryItemReader : Driving query에 기반해 DB에서 조회.
+				IbatisDrivingQueryItemReader : iBatis를 통해 Driving query 기반으로 Item을 읽음.
+				JmsItemReader : read메서드에서 javax.jms.Message객체를 반환. 
+				                스프링의 JmsOperations 객체의 receive메소드로 Item을 조회.
+        4.16.2 ItemWriter
+		        CompositeItemWriter : Item을 List로 저장된 여러 개의 ItemWriter에게 전달하여 처리.
+				DelegatingItemWriter : 내부에 다른 ItemWriter를 감싸고 있을 수 있는 ItemWriter.
+				PropertyExtractingDelegatingItemWriter : ItemWriter 인터페이스를 구현하지 않은 기존의 클래스를 Item
+				                                         Writer로 활용하는 경우, ItemWriter의 구현체를 써서 기존 클래스에 
+				                                         파라미터로 넘겨질 속성값들을 지정하고 실행.
+				ItemTransformerItemWriter : DelegatingItemWriter를 확장해서 Item을 write하기 전에 내부의 
+				                            ItemTransformer의 doProcess를 수행하고 Item 객체의 변환 등의 처리에 활용.
+				FlatFileItemWriter : Item을 String으로 변환해서 Flat file에 쓸 수 있게 하는 Item Writer
+			StaxEventWriterItemWriter : StAX를 이용해서 Item을 XML파일에 쓰는 ItemWriter 	
+6. 설치
+   6.1 다운로드로 취득한 zip파일 내 import 
+          spring-batch-core-2.2.7.RELEASE.jar
+          spring-batch-infrastructure-2.2.7.RELEASE.jar
+       또는
+        <!-- Spring Batch -->
+        <dependency>
+            <groupId>org.springframework.batch</groupId>
+            <artifactId>spring-batch-core</artifactId>
+            <version>${spring.batch.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.batch</groupId>
+            <artifactId>spring-batch-infrastructure</artifactId>
+            <version>${spring.batch.version}</version>
+        </dependency>
+        
+        <!-- Spring Batch unit test -->
+        <dependency>
+            <groupId>org.springframework.batch</groupId>
+            <artifactId>spring-batch-test</artifactId>
+            <version>${spring.batch.version}</version>
+        </dependency>
+    6.2  RDBMS를 JobRepository로 활용(ItemReader 또는 ItemWriter)시 JobRepository의 meta-data 정보 저장을위한 
+         메모리가 아닌 데이터베이스 영역 생성. 
+		 spring-batch-core-버젼.jar의 schema-RDBMS명.sql 활용.

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+ 	
+ 	<!-- order이 작은순으로 실행된다. -->
+ 	<bean id="internalViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver"
+ 		p:prefix="/WEB-INF/views/"
+ 		p:suffix=".jsp"
+ 		p:order="3">
+	</bean>
+	<bean id="beanNameViewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver"
+		p:order="2">
+	</bean>
+	
+	<bean id="tilesViewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver"
+		p:viewClass="org.springframework.web.servlet.view.tiles2.TilesView"
+		p:order="1">
+	</bean>
+	<!-- id값과 name값이 필요없다면 생략이 가능하다. -->
+<!-- 	<bean class="kr.or.ddit.vo.ZiptbVO" -->
+<!-- 		p:sido="대전광역시" -->
+<!-- 		p:gugun="중구" -->
+<!-- 		p:dong="대흥동" -->
+<!-- 		c:seq="222" -->
+<!-- 		c:zipcode="222-222"> -->
+<!-- 		<constructor-arg index="1" value="222"></constructor-arg> -->
+<!-- 		<constructor-arg index="0" value="111-111"></constructor-arg> -->
+<!-- 		<constructor-arg name="seq" value="222"></constructor-arg> -->
+<!-- 		<constructor-arg name="zipcode" value="111-111"></constructor-arg> -->
+<!-- 	</bean> -->
+</beans>
